@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos en Tiempo Real</title>
+</head>
+<body>
+    <h1>Productos en Tiempo Real</h1>
+    <ul id="productos-lista">
+        <!-- Aquí se mostrarán los productos en tiempo real -->
+    </ul>
+
+    <!-- Formulario para agregar un producto -->
+    <form id="product-form">
+        <input type="text" id="name" placeholder="Nombre del producto" required>
+        <input type="number" id="price" placeholder="Precio del producto" required>
+        <button type="submit">Agregar Producto</button>
+    </form>
+
+    <!-- Scripts para trabajar con Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // Recibir lista de productos actualizada
+        socket.on('updateProducts', (productos) => {
+            const productList = document.getElementById('productos-lista');
+            productList.innerHTML = '';
+            productos.forEach(product => {
+                const li = document.createElement('li');
+                li.textContent = `${product.name} - ${product.price}`;
+                productList.appendChild(li);
+            });
+        });
+
+        // Enviar nuevo producto
+        document.getElementById('product-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+
+            socket.emit('newProduct', { name, price });
+
+            // Limpiar el formulario
+            document.getElementById('name').value = '';
+            document.getElementById('price').value = '';
+        });
+    </script>
+</body>
+</html>
